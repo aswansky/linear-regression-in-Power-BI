@@ -1,0 +1,33 @@
+
+
+REGRESSION EQUATION (DAX):
+RegressionLine = 
+
+var data = 
+    FILTER(
+    SELECTCOLUMNS(ALLSELECTED(Subscribers),
+                            "x_values",Subscribers[Date],
+                            "y_values",[TimeFrameSubscribers]
+                        ),
+            AND(
+                NOT(ISBLANK([x_values])),
+                NOT(ISBLANK([y_values]))
+            )
+    )
+
+--Variables to Solve for:
+var y_sum = SUMX(data,[y_values])
+var x_sum = SUMX(data,[x_values])
+var x2 = SUMX(data,[x_values]^2)
+var xy = SUMX(data,[x_values]*[y_values])
+var row_count = COUNTROWS(data)
+
+--Solve for formula
+var Intercept = (y_sum * x2 - x_sum * xy)/ (row_count * x2-(x_sum) ^2)
+
+var Slope = (row_count * xy - x_sum * y_sum)/( row_count * x2-(x_sum) ^2)
+
+--Regression
+var Regression = SUMX(Subscribers, Slope * Subscribers[Date] + Intercept)
+
+return Regression
